@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bloomberg-bg: #0a0a0a;
+  --color-bloomberg-bg-panel: #111111;
+  --color-bloomberg-bg-header: #1a1a1a;
+  --color-bloomberg-bg-hover: #1e1e1e;
+  --color-bloomberg-orange: #ff8c00;
+  --color-bloomberg-amber: #ffbf00;
+  --color-bloomberg-green: #00c853;
+  --color-bloomberg-red: #ff1744;
+  --color-bloomberg-blue: #2196f3;
+  --color-bloomberg-text-primary: #ff8c00;
+  --color-bloomberg-text-secondary: #b0b0b0;
+  --color-bloomberg-text-muted: #666666;
+  --color-bloomberg-border: #2a2a2a;
+  --font-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+}
+
+body {
+  background: var(--color-bloomberg-bg);
+  color: var(--color-bloomberg-orange);
+  font-family: var(--font-mono);
+  overflow: hidden;
+}
+
+/* Bloomberg-style scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Blinking cursor for command bar */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Scrolling ticker tape */
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-scroll {
+  animation: ticker-scroll 30s linear infinite;
+}
+.ticker-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Fade-in animation */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Slide-in animation */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in {
+  animation: slide-in 0.2s ease-out;
+}
+
+/* Price flash animations */
+@keyframes flash-green {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(0, 200, 83, 0.2); }
+  100% { background-color: transparent; }
+}
+@keyframes flash-red {
+  0% { background-color: transparent; }
+  50% { background-color: rgba(255, 23, 68, 0.2); }
+  100% { background-color: transparent; }
+}
+.flash-green { animation: flash-green 0.6s ease-out; }
+.flash-red { animation: flash-red 0.6s ease-out; }
+
+/* Notification toast */
+@keyframes toast-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+.toast-enter { animation: toast-in 0.3s ease-out; }
+.toast-exit { animation: toast-out 0.3s ease-in; }
+
+/* react-grid-layout overrides */
+.react-grid-item > .react-resizable-handle::after {
+  border-color: #ff8c00 !important;
+}
+.react-grid-item.react-grid-placeholder {
+  background: #ff8c00 !important;
+  opacity: 0.15 !important;
+}

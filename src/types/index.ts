@@ -70,7 +70,32 @@ export type PanelType =
   | 'news'
   | 'portfolio'
   | 'chart'
-  | 'notes';
+  | 'notes'
+  | 'price-recorder';
+
+export type RecorderInterval = 1 | 5 | 15 | 30 | 60;
+
+export interface PriceSnapshot {
+  id: string;
+  timestamp: number;
+  ticker: string;
+  lastPrice: number;
+  openPrice: number;
+  change: number;
+  pctChange: number;
+  volume: number;
+  bid?: number;
+  ask?: number;
+}
+
+export interface RecorderSettings {
+  tickers: string[];
+  interval: RecorderInterval;
+  highlightThreshold: number;
+  alertThreshold: number;
+  marketOpen: string;
+  marketClose: string;
+}
 
 export type CommandAction =
   | { type: 'NAVIGATE'; panel: PanelType }

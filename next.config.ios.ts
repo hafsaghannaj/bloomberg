@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // For iOS build: run `npm run ios:build` which sets output: export
-  // For dev/browser: no output setting needed (uses API routes)
+  output: "export",
   images: {
     unoptimized: true,
   },

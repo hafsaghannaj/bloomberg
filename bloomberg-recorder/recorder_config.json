@@ -1,0 +1,11 @@
+{
+  "tickers": ["SPX Index", "SPY US Equity"],
+  "interval_minutes": 5,
+  "market_open": "09:30",
+  "market_close": "16:00",
+  "highlight_threshold_pct": 0.5,
+  "alert_threshold_pct": 1.0,
+  "output_dir": "bloomberg_data",
+  "bloomberg_host": "localhost",
+  "bloomberg_port": 8194
+}

@@ -14,6 +14,10 @@ export function parseCommand(input: string): CommandAction {
     LAUNCHPAD: 'market-overview',
     NOTES: 'notes',
     NOTE: 'notes',
+    RECORD: 'price-recorder',
+    REC: 'price-recorder',
+    RECORDER: 'price-recorder',
+    PREC: 'price-recorder',
   };
 
   if (trimmed in navCommands) {

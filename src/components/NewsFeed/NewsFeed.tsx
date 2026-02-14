@@ -34,11 +34,13 @@ export default function NewsFeed() {
               : formatDateTime(item.datetime);
 
             return (
-              <a
+              <div
                 key={item.id}
-                href={item.url !== '#' ? item.url : undefined}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => {
+                  if (item.url && item.url !== '#') {
+                    window.open(item.url, '_blank');
+                  }
+                }}
                 className="flex gap-3 px-3 py-2 border-b border-bloomberg-border/50 hover:bg-bloomberg-bg-hover cursor-pointer"
               >
                 <span className="text-bloomberg-orange text-[10px] font-mono shrink-0 w-12">
@@ -50,7 +52,7 @@ export default function NewsFeed() {
                 <span className="text-bloomberg-text-secondary text-xs flex-1 leading-tight">
                   {item.headline}
                 </span>
-              </a>
+              </div>
             );
           })}
       </div>

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { PanelType, WatchlistItem, PortfolioPosition } from '@/types';
+import { PanelType, WatchlistItem, PortfolioPosition, PriceSnapshot, RecorderSettings, RecorderInterval } from '@/types';
 
 export interface PriceAlert {
   id: string;
@@ -58,6 +58,21 @@ interface TerminalState {
   // Command history
   commandHistory: string[];
   pushCommand: (cmd: string) => void;
+
+  // Price Recorder
+  recorderActive: boolean;
+  recorderSnapshots: PriceSnapshot[];
+  recorderSettings: RecorderSettings;
+  recorderOpeningPrices: Record<string, number>;
+  startRecorder: () => void;
+  stopRecorder: () => void;
+  addSnapshot: (snapshot: PriceSnapshot) => void;
+  clearSnapshots: () => void;
+  setRecorderInterval: (interval: RecorderInterval) => void;
+  addRecorderTicker: (ticker: string) => void;
+  removeRecorderTicker: (ticker: string) => void;
+  updateRecorderSettings: (settings: Partial<RecorderSettings>) => void;
+  setOpeningPrice: (ticker: string, price: number) => void;
 
   setActiveSymbol: (symbol: string | null) => void;
   setActiveView: (view: PanelType) => void;
@@ -180,6 +195,55 @@ export const useTerminalStore = create<TerminalState>()(
           commandHistory: [cmd, ...state.commandHistory].slice(0, 50),
         })),
 
+      // Price Recorder
+      recorderActive: false,
+      recorderSnapshots: [],
+      recorderOpeningPrices: {},
+      recorderSettings: {
+        tickers: ['^GSPC', 'SPY'],
+        interval: 5 as RecorderInterval,
+        highlightThreshold: 0.5,
+        alertThreshold: 1.0,
+        marketOpen: '09:30',
+        marketClose: '16:00',
+      },
+      startRecorder: () => set({ recorderActive: true }),
+      stopRecorder: () => set({ recorderActive: false }),
+      addSnapshot: (snapshot) =>
+        set((state) => ({
+          recorderSnapshots: [...state.recorderSnapshots, snapshot].slice(-5000),
+        })),
+      clearSnapshots: () => set({ recorderSnapshots: [], recorderOpeningPrices: {} }),
+      setRecorderInterval: (interval) =>
+        set((state) => ({
+          recorderSettings: { ...state.recorderSettings, interval },
+        })),
+      addRecorderTicker: (ticker) =>
+        set((state) => {
+          if (state.recorderSettings.tickers.includes(ticker)) return state;
+          return {
+            recorderSettings: {
+              ...state.recorderSettings,
+              tickers: [...state.recorderSettings.tickers, ticker],
+            },
+          };
+        }),
+      removeRecorderTicker: (ticker) =>
+        set((state) => ({
+          recorderSettings: {
+            ...state.recorderSettings,
+            tickers: state.recorderSettings.tickers.filter((t) => t !== ticker),
+          },
+        })),
+      updateRecorderSettings: (settings) =>
+        set((state) => ({
+          recorderSettings: { ...state.recorderSettings, ...settings },
+        })),
+      setOpeningPrice: (ticker, price) =>
+        set((state) => ({
+          recorderOpeningPrices: { ...state.recorderOpeningPrices, [ticker]: price },
+        })),
+
       setActiveSymbol: (symbol) => set({ activeSymbol: symbol }),
       setActiveView: (view) => set({ activeView: view }),
     }),
@@ -191,6 +255,9 @@ export const useTerminalStore = create<TerminalState>()(
         commandHistory: state.commandHistory,
         alerts: state.alerts,
         tabs: state.tabs,
+        recorderSettings: state.recorderSettings,
+        recorderSnapshots: state.recorderSnapshots,
+        recorderOpeningPrices: state.recorderOpeningPrices,
       }),
     }
   )

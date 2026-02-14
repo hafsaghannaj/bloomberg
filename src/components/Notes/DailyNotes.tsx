@@ -30,6 +30,7 @@ export default function DailyNotes() {
   const [savedDates, setSavedDates] = useState<string[]>([]);
   const [lastSaved, setLastSaved] = useState<string>('');
   const [exporting, setExporting] = useState(false);
+  const [saveFlash, setSaveFlash] = useState(false);
   const { addNotification } = useTerminalStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -42,6 +43,11 @@ export default function DailyNotes() {
   }, [currentDate]);
 
   // Auto-save with debounce
+  const flashSaved = useCallback(() => {
+    setSaveFlash(true);
+    setTimeout(() => setSaveFlash(false), 1500);
+  }, []);
+
   const autoSave = useCallback(
     (text: string) => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
@@ -50,6 +56,7 @@ export default function DailyNotes() {
           localStorage.setItem(`notes-${currentDate}`, text);
           setLastSaved(new Date().toLocaleTimeString('en-US', { hour12: false }));
           setSavedDates(getAllNoteDates());
+          flashSaved();
         } else {
           localStorage.removeItem(`notes-${currentDate}`);
           setSavedDates(getAllNoteDates());
@@ -57,7 +64,7 @@ export default function DailyNotes() {
         }
       }, 800);
     },
-    [currentDate]
+    [currentDate, flashSaved]
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -71,9 +78,22 @@ export default function DailyNotes() {
       localStorage.setItem(`notes-${currentDate}`, content);
       setLastSaved(new Date().toLocaleTimeString('en-US', { hour12: false }));
       setSavedDates(getAllNoteDates());
+      flashSaved();
       addNotification(`Notes saved for ${formatDateLabel(currentDate)}`, 'success');
     }
   };
+
+  // Ctrl+S / Cmd+S keyboard shortcut to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleManualSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  });
 
   const navigateDate = (direction: -1 | 1) => {
     const d = new Date(currentDate + 'T12:00:00');
@@ -96,51 +116,93 @@ export default function DailyNotes() {
     try {
       const { jsPDF } = await import('jspdf');
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 14;
+      const contentWidth = pageWidth - margin * 2;
+      const lineHeight = 6;
+      const footerY = pageHeight - 10;
 
-      // Header
-      doc.setFontSize(18);
-      doc.setTextColor(255, 140, 0); // Bloomberg orange
-      doc.text('BLOOMBERG TERMINAL - DAILY NOTES', 14, 20);
+      const addHeader = (pageNum: number) => {
+        doc.setFontSize(18);
+        doc.setTextColor(255, 140, 0);
+        doc.text('BLOOMBERG TERMINAL - DAILY NOTES', margin, 20);
 
-      // Date
-      doc.setFontSize(12);
-      doc.setTextColor(150, 150, 150);
-      doc.text(formatDateLabel(currentDate), 14, 30);
+        doc.setFontSize(12);
+        doc.setTextColor(150, 150, 150);
+        doc.text(formatDateLabel(currentDate), margin, 30);
 
-      // Separator
-      doc.setDrawColor(42, 42, 42);
-      doc.line(14, 34, 196, 34);
+        doc.setDrawColor(42, 42, 42);
+        doc.line(margin, 34, pageWidth - margin, 34);
 
-      // Content
+        // Page number (skip on page 1 if single page)
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Generated ${new Date().toLocaleString()}`, margin, footerY);
+        if (pageNum > 0) {
+          doc.text(`Page ${pageNum + 1}`, pageWidth - margin - 15, footerY);
+        }
+      };
+
+      addHeader(0);
+
+      // Split content into lines that fit the page width
       doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
-      const lines = doc.splitTextToSize(content, 178);
-      doc.text(lines, 14, 42);
+      const lines: string[] = doc.splitTextToSize(content, contentWidth);
 
-      // Footer
-      const pageHeight = doc.internal.pageSize.height;
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 150);
-      doc.text(`Generated ${new Date().toLocaleString()}`, 14, pageHeight - 10);
+      let y = 42;
+      let pageNum = 0;
 
-      // Get base64 and save to server
-      const pdfBase64 = doc.output('datauristring').split(',')[1];
-      const filename = `notes-${currentDate}.pdf`;
-
-      const res = await fetch('/api/save-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdfBase64, filename }),
-      });
-
-      if (res.ok) {
-        addNotification(`PDF saved: pdf/${filename}`, 'success');
-      } else {
-        throw new Error('Save failed');
+      for (let i = 0; i < lines.length; i++) {
+        if (y + lineHeight > footerY - 5) {
+          // Start a new page
+          doc.addPage();
+          pageNum++;
+          addHeader(pageNum);
+          doc.setFontSize(11);
+          doc.setTextColor(60, 60, 60);
+          y = 42;
+        }
+        doc.text(lines[i], margin, y);
+        y += lineHeight;
       }
 
-      // Also trigger browser download
+      // Update page 1 with total pages if multi-page
+      if (pageNum > 0) {
+        for (let p = 0; p <= pageNum; p++) {
+          doc.setPage(p + 1);
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          // Overwrite page number area
+          doc.setFillColor(255, 255, 255);
+          doc.rect(pageWidth - margin - 30, footerY - 4, 30, 6, 'F');
+          doc.text(`Page ${p + 1} of ${pageNum + 1}`, pageWidth - margin - 28, footerY);
+        }
+      }
+
+      const filename = `notes-${currentDate}.pdf`;
+
+      // Trigger browser download
       doc.save(filename);
+
+      // Also save to server (skip in standalone/iOS mode)
+      try {
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        const res = await fetch('/api/save-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pdfBase64, filename }),
+        });
+
+        if (res.ok) {
+          addNotification(`PDF downloaded & saved to pdf/${filename}`, 'success');
+        } else {
+          addNotification(`PDF downloaded`, 'success');
+        }
+      } catch {
+        addNotification(`PDF downloaded`, 'success');
+      }
     } catch (err) {
       console.error('PDF export error:', err);
       addNotification('Failed to export PDF', 'alert');
@@ -160,23 +222,32 @@ export default function DailyNotes() {
         </span>
         <div className="flex items-center gap-2">
           {lastSaved && (
-            <span className="text-bloomberg-green text-[10px]">
-              Saved {lastSaved}
+            <span className={`text-[10px] transition-colors duration-300 ${
+              saveFlash ? 'text-bloomberg-green font-bold' : 'text-bloomberg-green/60'
+            }`}>
+              {saveFlash ? 'SAVED' : `Saved ${lastSaved}`}
             </span>
           )}
           <button
             onClick={handleManualSave}
-            className="text-bloomberg-text-muted hover:text-bloomberg-orange"
-            title="Save"
+            className={`flex items-center gap-1 px-2 py-0.5 text-[10px] rounded border transition-colors ${
+              saveFlash
+                ? 'border-bloomberg-green text-bloomberg-green bg-bloomberg-green/10'
+                : 'border-bloomberg-border text-bloomberg-text-muted hover:text-bloomberg-orange hover:border-bloomberg-orange'
+            }`}
+            title="Save (Ctrl+S)"
           >
-            <Save size={13} />
+            <Save size={10} />
+            SAVE
           </button>
           <button
             onClick={exportToPdf}
             disabled={exporting || !content.trim()}
             className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded border ${
-              exporting || !content.trim()
-                ? 'border-bloomberg-border text-bloomberg-text-muted'
+              exporting
+                ? 'border-bloomberg-amber text-bloomberg-amber animate-pulse'
+                : !content.trim()
+                ? 'border-bloomberg-border text-bloomberg-text-muted cursor-not-allowed'
                 : 'border-bloomberg-orange text-bloomberg-orange hover:bg-bloomberg-orange hover:text-black'
             }`}
           >

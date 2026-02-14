@@ -10,6 +10,7 @@ import HeatMap from '@/components/HeatMap/HeatMap';
 import AlertsPanel from '@/components/UI/AlertsPanel';
 import PortfolioBreakdown from '@/components/Portfolio/PortfolioBreakdown';
 import DailyNotes from '@/components/Notes/DailyNotes';
+import PriceRecorder from '@/components/PriceRecorder/PriceRecorder';
 
 export default function PanelLayout() {
   const { activeView } = useTerminalStore();
@@ -64,6 +65,24 @@ export default function PanelLayout() {
         </div>
         <div className="bg-bloomberg-bg overflow-hidden">
           <NewsFeed />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeView === 'price-recorder') {
+    return (
+      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-border animate-fade-in">
+        <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
+          <PriceRecorder />
+        </div>
+        <div className="bg-bloomberg-bg overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden border-b border-bloomberg-border">
+            <NewsFeed />
+          </div>
+          <div className="h-[220px] shrink-0 overflow-hidden">
+            <Watchlist />
+          </div>
         </div>
       </div>
     );

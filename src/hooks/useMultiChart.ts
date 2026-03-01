@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import type { ChartDataPoint, ChartTimeframe } from '@/types';
 
@@ -13,7 +14,7 @@ export function useMultiChart(symbols: string[], timeframe: ChartTimeframe) {
     queryFn: async () => {
       const results = await Promise.all(
         symbols.map((sym) =>
-          fetch(`/api/chart?symbol=${sym}&range=${timeframe}`)
+          apiFetch(`/api/chart?symbol=${sym}&range=${timeframe}`)
             .then((r) => r.json())
             .then((data: ChartDataPoint[]) => ({ symbol: sym, data: Array.isArray(data) ? data : [] }))
             .catch(() => ({ symbol: sym, data: [] as ChartDataPoint[] }))

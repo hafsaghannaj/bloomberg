@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 
 import { useQuery } from '@tanstack/react-query';
 import { NewsItem } from '@/types';
@@ -13,7 +14,7 @@ export function useNews(symbol?: string | null) {
         return await getNewsClient(symbol);
       }
       const params = symbol ? `?symbol=${symbol}` : '';
-      const res = await fetch(`/api/news${params}`);
+      const res = await apiFetch(`/api/news${params}`);
       if (!res.ok) throw new Error('News fetch failed');
       return res.json();
     },

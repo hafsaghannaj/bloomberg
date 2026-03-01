@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 
 import { useQuery } from '@tanstack/react-query';
 import { ChartDataPoint, ChartTimeframe } from '@/types';
@@ -12,7 +13,7 @@ export function useChart(symbol: string | null, timeframe: ChartTimeframe) {
       if (isNativePlatform()) {
         return await getChartClient(symbol!, timeframe);
       }
-      const res = await fetch(`/api/chart?symbol=${symbol}&range=${timeframe}`);
+      const res = await apiFetch(`/api/chart?symbol=${symbol}&range=${timeframe}`);
       if (!res.ok) throw new Error('Chart fetch failed');
       return res.json();
     },

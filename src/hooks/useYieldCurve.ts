@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { useQuery } from '@tanstack/react-query';
 import type { YieldPoint } from '@/types';
 
@@ -5,7 +6,7 @@ export function useYieldCurve() {
   return useQuery<YieldPoint[]>({
     queryKey: ['yield-curve'],
     queryFn: async () => {
-      const res = await fetch('/api/fred/yield-curve');
+      const res = await apiFetch('/api/fred/yield-curve');
       if (!res.ok) throw new Error('Failed to fetch yield curve');
       return res.json();
     },

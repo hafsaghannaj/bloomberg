@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import type { EconomicEvent } from '@/lib/finnhub';
 
@@ -6,7 +7,7 @@ export function useEconomicCalendar() {
   return useQuery<EconomicEvent[]>({
     queryKey: ['economic-calendar'],
     queryFn: async () => {
-      const res = await fetch('/api/economic-calendar');
+      const res = await apiFetch('/api/economic-calendar');
       if (!res.ok) return [];
       return res.json();
     },

@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 
 import { useQuery } from '@tanstack/react-query';
 import { Quote } from '@/types';
@@ -12,7 +13,7 @@ export function useQuote(symbol: string | null) {
       if (isNativePlatform()) {
         return await getQuoteClient(symbol!) as unknown as Quote;
       }
-      const res = await fetch(`/api/quote?symbols=${symbol}`);
+      const res = await apiFetch(`/api/quote?symbols=${symbol}`);
       if (!res.ok) throw new Error('Quote fetch failed');
       const data = await res.json();
       return data[0];
@@ -30,7 +31,7 @@ export function useQuotes(symbols: string[]) {
       if (isNativePlatform()) {
         return await getQuotesClient(symbols) as unknown as Quote[];
       }
-      const res = await fetch(`/api/quote?symbols=${symbols.join(',')}`);
+      const res = await apiFetch(`/api/quote?symbols=${symbols.join(',')}`);
       if (!res.ok) throw new Error('Quotes fetch failed');
       return res.json();
     },

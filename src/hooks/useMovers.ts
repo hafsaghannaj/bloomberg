@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { useQuery } from '@tanstack/react-query';
 
 export type MoverType = 'gainers' | 'losers' | 'active' | 'shorted' | 'undervalued' | 'growth';
@@ -20,7 +21,7 @@ export function useMovers(type: MoverType) {
   return useQuery<MoverQuote[]>({
     queryKey: ['movers', type],
     queryFn: async () => {
-      const res = await fetch(`/api/movers?type=${type}`);
+      const res = await apiFetch(`/api/movers?type=${type}`);
       if (!res.ok) return [];
       return res.json();
     },

@@ -1,3 +1,4 @@
+import { apiFetch } from "@/lib/api";
 import { useQuery } from '@tanstack/react-query';
 import type { PortfolioPosition } from '@/types';
 
@@ -48,7 +49,7 @@ export function usePortfolioRisk(positions: PortfolioPosition[]) {
   return useQuery<PortfolioRiskResult>({
     queryKey: ['portfolio-risk', key],
     queryFn: async () => {
-      const res = await fetch('/api/portfolio-analytics', {
+      const res = await apiFetch('/api/portfolio-analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
@@ -20,7 +21,7 @@ export function useSearch(query: string) {
       if (isNativePlatform()) {
         return await searchSymbolsClient(debouncedQuery);
       }
-      const res = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
+      const res = await apiFetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
       if (!res.ok) throw new Error('Search failed');
       return res.json();
     },

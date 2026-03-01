@@ -1,6 +1,6 @@
 {
-  "appId": "com.hafsaghannaj.bloombergterminal",
-  "appName": "Bloomberg Terminal",
+  "appId": "com.hafsaghannaj.hapsaterminal",
+  "appName": "HAFSA Terminal",
   "webDir": "out",
   "plugins": {
     "CapacitorHttp": {
@@ -9,8 +9,9 @@
   },
   "ios": {
     "contentInset": "automatic",
-    "backgroundColor": "#0a0a0a",
+    "backgroundColor": "#001616",
     "preferredContentMode": "mobile",
-    "allowsLinkPreview": false
+    "allowsLinkPreview": false,
+    "scrollEnabled": false
   }
 }

@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -23,7 +24,7 @@ export function useSectorRotation() {
   return useQuery<SectorRotationData>({
     queryKey: ['sector-rotation'],
     queryFn: async () => {
-      const res = await fetch('/api/sector-rotation');
+      const res = await apiFetch('/api/sector-rotation');
       if (!res.ok) throw new Error('sector rotation fetch failed');
       return res.json();
     },

@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 
 import { useQuery } from '@tanstack/react-query';
 import { isNativePlatform } from '@/lib/platform';
@@ -11,7 +12,7 @@ export function useQuoteSummary(symbol: string | null) {
       if (isNativePlatform()) {
         return await getQuoteSummaryClient(symbol!);
       }
-      const res = await fetch(`/api/quote-summary?symbol=${symbol}`);
+      const res = await apiFetch(`/api/quote-summary?symbol=${symbol}`);
       if (!res.ok) throw new Error('QuoteSummary fetch failed');
       return res.json();
     },

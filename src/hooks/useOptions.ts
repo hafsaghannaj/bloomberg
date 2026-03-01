@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 
 export interface OptionContract {
@@ -27,7 +28,7 @@ export function useOptions(symbol: string | null, expiry?: number) {
   return useQuery<OptionsData>({
     queryKey: ['options', symbol, expiry],
     queryFn: async () => {
-      const res = await fetch(`/api/options?${params}`);
+      const res = await apiFetch(`/api/options?${params}`);
       if (!res.ok) return { expirationDates: [], calls: [], puts: [] };
       return res.json();
     },

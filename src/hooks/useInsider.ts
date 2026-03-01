@@ -1,4 +1,5 @@
 'use client';
+import { apiFetch } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import type { InsiderTransaction } from '@/lib/finnhub';
 
@@ -6,7 +7,7 @@ export function useInsider(symbol: string | null) {
   return useQuery<InsiderTransaction[]>({
     queryKey: ['insider', symbol],
     queryFn: async () => {
-      const res = await fetch(`/api/insider?symbol=${symbol}`);
+      const res = await apiFetch(`/api/insider?symbol=${symbol}`);
       if (!res.ok) return [];
       return res.json();
     },

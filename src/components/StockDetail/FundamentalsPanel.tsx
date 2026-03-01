@@ -15,8 +15,10 @@ import {
 import type { Quote } from '@/types';
 import { useRecommendationTrend } from '@/hooks/useRecommendationTrend';
 import { useEarningsHistory } from '@/hooks/useEarningsHistory';
+import InsiderTransactions from './InsiderTransactions';
+import OptionsChain from './OptionsChain';
 
-type Tab = 'VALUATION' | 'FINANCIALS' | 'BALANCE' | 'ESTIMATES' | 'PROFILE';
+type Tab = 'VALUATION' | 'FINANCIALS' | 'BALANCE' | 'ESTIMATES' | 'PROFILE' | 'INSIDER' | 'OPTIONS';
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
@@ -129,7 +131,7 @@ export default function FundamentalsPanel({ summary, quote }: Props) {
   const { data: recTrend } = useRecommendationTrend(quote.symbol);
   const { data: epsHistory } = useEarningsHistory(quote.symbol);
 
-  const TABS: Tab[] = ['VALUATION', 'FINANCIALS', 'BALANCE', 'ESTIMATES', 'PROFILE'];
+  const TABS: Tab[] = ['VALUATION', 'FINANCIALS', 'BALANCE', 'ESTIMATES', 'PROFILE', 'INSIDER', 'OPTIONS'];
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -568,6 +570,14 @@ export default function FundamentalsPanel({ summary, quote }: Props) {
               </div>
             ) : null}
           </div>
+        )}
+
+        {tab === 'INSIDER' && (
+          <InsiderTransactions symbol={quote.symbol} />
+        )}
+
+        {tab === 'OPTIONS' && (
+          <OptionsChain symbol={quote.symbol} />
         )}
       </div>
     </div>

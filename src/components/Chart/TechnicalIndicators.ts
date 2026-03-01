@@ -122,6 +122,36 @@ export function calculateMACD(
   return result;
 }
 
+export interface StochasticPoint {
+  time: number;
+  k: number;
+  d: number;
+}
+
+export function calculateStochastic(
+  data: ChartDataPoint[],
+  period = 14,
+  smoothD = 3
+): StochasticPoint[] {
+  if (data.length < period + smoothD) return [];
+
+  const rawK: { time: number; k: number }[] = [];
+  for (let i = period - 1; i < data.length; i++) {
+    const slice = data.slice(i - period + 1, i + 1);
+    const highest = Math.max(...slice.map((d) => d.high));
+    const lowest = Math.min(...slice.map((d) => d.low));
+    const k = highest === lowest ? 50 : ((data[i].close - lowest) / (highest - lowest)) * 100;
+    rawK.push({ time: data[i].time, k });
+  }
+
+  const result: StochasticPoint[] = [];
+  for (let i = smoothD - 1; i < rawK.length; i++) {
+    const d = rawK.slice(i - smoothD + 1, i + 1).reduce((a, b) => a + b.k, 0) / smoothD;
+    result.push({ time: rawK[i].time, k: rawK[i].k, d });
+  }
+  return result;
+}
+
 export function calculateBollingerBands(
   data: ChartDataPoint[],
   period = 20,

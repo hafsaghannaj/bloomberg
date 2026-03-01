@@ -16,6 +16,8 @@ import PortfolioRisk from '@/components/Portfolio/PortfolioRisk';
 import EarningsCalendar from '@/components/EarningsCalendar/EarningsCalendar';
 import MoversPanel from '@/components/Movers/MoversPanel';
 import SectorRotation from '@/components/SectorRotation/SectorRotation';
+import EconomicCalendarView from '@/components/EconomicCalendar/EconomicCalendarView';
+import MultiChart from '@/components/Chart/MultiChart';
 
 export default function PanelLayout() {
   const { activeView } = useTerminalStore();
@@ -147,6 +149,27 @@ export default function PanelLayout() {
     return (
       <div className="h-full bg-bloomberg-bg overflow-hidden animate-fade-in">
         <SectorRotation />
+      </div>
+    );
+  }
+
+  if (activeView === 'economic-calendar') {
+    return (
+      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-grid animate-fade-in">
+        <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
+          <EconomicCalendarView />
+        </div>
+        <div className="bg-bloomberg-bg overflow-hidden">
+          <NewsFeed />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeView === 'chart-overlay') {
+    return (
+      <div className="h-full bg-bloomberg-bg overflow-hidden animate-fade-in">
+        <MultiChart />
       </div>
     );
   }

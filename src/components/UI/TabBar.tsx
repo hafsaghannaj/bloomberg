@@ -59,6 +59,16 @@ export default function TabBar() {
         active={activeView === 'sector-rotation'}
         onClick={() => setActiveView('sector-rotation')}
       />
+      <NavTab
+        label="ECON"
+        active={activeView === 'economic-calendar'}
+        onClick={() => setActiveView('economic-calendar')}
+      />
+      <NavTab
+        label="OVERLAY"
+        active={activeView === 'chart-overlay'}
+        onClick={() => setActiveView('chart-overlay')}
+      />
 
       {/* Vertical separator */}
       {tabs.length > 0 && (

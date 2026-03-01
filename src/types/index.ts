@@ -75,7 +75,9 @@ export type PanelType =
   | 'macro'
   | 'earnings'
   | 'movers'
-  | 'sector-rotation';
+  | 'sector-rotation'
+  | 'economic-calendar'
+  | 'chart-overlay';
 
 export interface YieldPoint {
   maturity: string;

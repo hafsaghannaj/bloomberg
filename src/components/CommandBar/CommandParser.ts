@@ -41,6 +41,15 @@ export function parseCommand(input: string): CommandAction {
     ROT: 'sector-rotation',
     ROTATION: 'sector-rotation',
     RRG: 'sector-rotation',
+    ECON: 'economic-calendar',
+    ECALENDAR: 'economic-calendar',
+    FEDCAL: 'economic-calendar',
+    FEDMEETING: 'economic-calendar',
+    CALENDAR: 'economic-calendar',
+    OVERLAY: 'chart-overlay',
+    MULTI: 'chart-overlay',
+    COMPARE: 'chart-overlay',
+    COMP: 'chart-overlay',
   };
 
   if (trimmed in navCommands) {

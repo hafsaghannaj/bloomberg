@@ -110,6 +110,107 @@ export async function getEarningsCalendar(from: string, to: string): Promise<Ear
   }
 }
 
+// ─── Insider Transactions ──────────────────────────────────────────────────────
+
+export interface InsiderTransaction {
+  name: string;
+  share: number;
+  change: number;
+  transactionDate: string;
+  transactionPrice: number;
+  transactionCode: string;
+}
+
+export async function getInsiderTransactions(symbol: string): Promise<InsiderTransaction[]> {
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (!apiKey) return [];
+  try {
+    const res = await fetch(
+      `${FINNHUB_BASE}/stock/insider-transactions?symbol=${symbol}&token=${apiKey}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as { data?: Array<Record<string, unknown>> };
+    return (data.data ?? [])
+      .filter((d) => d.transactionCode === 'P' || d.transactionCode === 'S')
+      .slice(0, 30)
+      .map((d) => ({
+        name: String(d.name ?? ''),
+        share: Math.abs(Number(d.share ?? 0)),
+        change: Number(d.change ?? 0),
+        transactionDate: String(d.transactionDate ?? ''),
+        transactionPrice: Number(d.transactionPrice ?? 0),
+        transactionCode: String(d.transactionCode ?? ''),
+      }));
+  } catch {
+    return [];
+  }
+}
+
+// ─── Economic Calendar ─────────────────────────────────────────────────────────
+
+export interface EconomicEvent {
+  event: string;
+  country: string;
+  time: string;
+  impact: 'high' | 'medium' | 'low';
+  actual: number | null;
+  estimate: number | null;
+  prev: number | null;
+  unit: string;
+}
+
+export async function getEconomicCalendar(): Promise<EconomicEvent[]> {
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (!apiKey) return getMockEconomicEvents();
+  try {
+    const res = await fetch(
+      `${FINNHUB_BASE}/calendar/economic?token=${apiKey}`,
+      { next: { revalidate: 1800 } }
+    );
+    if (!res.ok) return getMockEconomicEvents();
+    const data = await res.json() as { economicCalendar?: Array<Record<string, unknown>> };
+    const events = (data.economicCalendar ?? [])
+      .map((d) => ({
+        event: String(d.event ?? ''),
+        country: String(d.country ?? ''),
+        time: String(d.time ?? ''),
+        impact: (['high', 'medium', 'low'].includes(String(d.impact)) ? String(d.impact) : 'low') as 'high' | 'medium' | 'low',
+        actual: d.actual != null ? Number(d.actual) : null,
+        estimate: d.estimate != null ? Number(d.estimate) : null,
+        prev: d.prev != null ? Number(d.prev) : null,
+        unit: String(d.unit ?? ''),
+      }))
+      .filter((d) => d.event && d.time);
+    return events.length > 0 ? events : getMockEconomicEvents();
+  } catch {
+    return getMockEconomicEvents();
+  }
+}
+
+function getMockEconomicEvents(): EconomicEvent[] {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const dateStr = (offset: number) => {
+    const d = new Date(now.getTime() + offset * 86400000);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} 13:30:00`;
+  };
+  return [
+    { event: 'Nonfarm Payrolls', country: 'US', time: dateStr(1), impact: 'high', actual: null, estimate: 185, prev: 256, unit: 'K' },
+    { event: 'Unemployment Rate', country: 'US', time: dateStr(1), impact: 'high', actual: null, estimate: 4.1, prev: 4.1, unit: '%' },
+    { event: 'CPI (YoY)', country: 'US', time: dateStr(3), impact: 'high', actual: null, estimate: 3.1, prev: 3.4, unit: '%' },
+    { event: 'Core CPI (YoY)', country: 'US', time: dateStr(3), impact: 'high', actual: null, estimate: 3.7, prev: 3.9, unit: '%' },
+    { event: 'GDP (QoQ)', country: 'US', time: dateStr(5), impact: 'high', actual: null, estimate: 2.3, prev: 3.1, unit: '%' },
+    { event: 'FOMC Meeting Minutes', country: 'US', time: dateStr(7), impact: 'high', actual: null, estimate: null, prev: null, unit: '' },
+    { event: 'Retail Sales (MoM)', country: 'US', time: dateStr(2), impact: 'medium', actual: null, estimate: 0.3, prev: -0.1, unit: '%' },
+    { event: 'ISM Manufacturing PMI', country: 'US', time: dateStr(4), impact: 'medium', actual: null, estimate: 50.4, prev: 49.1, unit: '' },
+    { event: 'Consumer Confidence', country: 'US', time: dateStr(4), impact: 'medium', actual: null, estimate: 106.5, prev: 104.1, unit: '' },
+    { event: 'Initial Jobless Claims', country: 'US', time: dateStr(0), impact: 'medium', actual: null, estimate: 215, prev: 220, unit: 'K' },
+    { event: 'PPI (YoY)', country: 'US', time: dateStr(6), impact: 'medium', actual: null, estimate: 2.4, prev: 2.6, unit: '%' },
+    { event: 'Durable Goods Orders', country: 'US', time: dateStr(8), impact: 'medium', actual: null, estimate: 0.5, prev: -0.3, unit: '%' },
+  ];
+}
+
 export async function getMarketNews(category = 'general'): Promise<NewsItem[]> {
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) {

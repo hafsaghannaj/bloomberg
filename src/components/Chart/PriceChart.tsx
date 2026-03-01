@@ -3,11 +3,18 @@
 import { useRef, useEffect, useState, memo } from 'react';
 import { useChart } from '@/hooks/useChart';
 import { ChartTimeframe } from '@/types';
-import { calculateSMA, calculateRSI, calculateBollingerBands } from './TechnicalIndicators';
+import {
+  calculateSMA, calculateRSI, calculateBollingerBands,
+  calculateMACD, calculateStochastic,
+} from './TechnicalIndicators';
+import {
+  ComposedChart, Bar, Line, LineChart, Cell,
+  XAxis, YAxis, ReferenceLine, ResponsiveContainer, Tooltip,
+} from 'recharts';
 
 const TIMEFRAMES: ChartTimeframe[] = ['1D', '1W', '1M', '3M', '1Y', '5Y'];
 
-type Indicator = 'SMA20' | 'SMA50' | 'RSI' | 'BB';
+type Indicator = 'SMA20' | 'SMA50' | 'RSI' | 'BB' | 'MACD' | 'STOCH';
 
 interface Props {
   symbol: string;
@@ -165,9 +172,18 @@ function PriceChartInner({ symbol }: Props) {
     }
   }, [data, timeframe]);
 
-  // RSI display (separate from chart)
-  const rsiData = data && indicators.has('RSI')
-    ? calculateRSI(data.filter((d) => d.close != null && d.time != null))
+  const validData = data ? data.filter((d) => d.close != null && d.time != null) : [];
+
+  const rsiData = indicators.has('RSI') && validData.length > 0
+    ? calculateRSI(validData)
+    : null;
+
+  const macdData = indicators.has('MACD') && validData.length > 0
+    ? calculateMACD(validData).slice(-60)
+    : null;
+
+  const stochData = indicators.has('STOCH') && validData.length > 0
+    ? calculateStochastic(validData).slice(-60)
     : null;
 
   return (
@@ -191,7 +207,7 @@ function PriceChartInner({ symbol }: Props) {
         </div>
         <div className="w-px h-4 bg-bloomberg-border" />
         <div className="flex gap-0.5 ml-2">
-          {(['SMA20', 'SMA50', 'RSI', 'BB'] as Indicator[]).map((ind) => (
+          {(['SMA20', 'SMA50', 'RSI', 'BB', 'MACD', 'STOCH'] as Indicator[]).map((ind) => (
             <button
               key={ind}
               onClick={() => toggleIndicator(ind)}
@@ -240,6 +256,66 @@ function PriceChartInner({ symbol }: Props) {
               {rsiData[rsiData.length - 1]?.value.toFixed(1)}
             </span>
             <span>70</span>
+          </div>
+        </div>
+      )}
+
+      {/* MACD subplot */}
+      {macdData && macdData.length > 0 && (
+        <div className="h-20 border-t border-bloomberg-border px-2 pt-1 pb-0.5 shrink-0">
+          <div className="flex justify-between text-[9px] mb-0.5">
+            <span className="text-bloomberg-text-muted">MACD(12,26,9)</span>
+            <span className="tabular-nums" style={{ color: (macdData.at(-1)?.histogram ?? 0) >= 0 ? '#00FF66' : '#FF3333' }}>
+              H:{macdData.at(-1)?.histogram.toFixed(3)}
+              {' '}<span style={{ color: '#CCA800' }}>M:{macdData.at(-1)?.macd.toFixed(3)}</span>
+              {' '}<span style={{ color: '#00BFFF' }}>S:{macdData.at(-1)?.signal.toFixed(3)}</span>
+            </span>
+          </div>
+          <div className="h-12">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={macdData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <ReferenceLine y={0} stroke="#003333" strokeDasharray="2 2" />
+                <Bar dataKey="histogram" maxBarSize={6} isAnimationActive={false}>
+                  {macdData.map((d, i) => (
+                    <Cell key={i} fill={d.histogram >= 0 ? '#00FF6699' : '#FF333399'} />
+                  ))}
+                </Bar>
+                <Line type="monotone" dataKey="macd" stroke="#CCA800" dot={false} strokeWidth={1} isAnimationActive={false} />
+                <Line type="monotone" dataKey="signal" stroke="#00BFFF" dot={false} strokeWidth={1} isAnimationActive={false} />
+                <Tooltip
+                  content={({ payload }) => {
+                    if (!payload?.length) return null;
+                    return null; // minimal – values shown in header
+                  }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Stochastic subplot */}
+      {stochData && stochData.length > 0 && (
+        <div className="h-20 border-t border-bloomberg-border px-2 pt-1 pb-0.5 shrink-0">
+          <div className="flex justify-between text-[9px] mb-0.5">
+            <span className="text-bloomberg-text-muted">STOCH(14,3)</span>
+            <span className="tabular-nums">
+              <span style={{ color: '#CCA800' }}>%K:{stochData.at(-1)?.k.toFixed(1)}</span>
+              {' '}<span style={{ color: '#00BFFF' }}>%D:{stochData.at(-1)?.d.toFixed(1)}</span>
+              {(stochData.at(-1)?.k ?? 50) < 20 && <span style={{ color: '#00FF66' }}> OVERSOLD</span>}
+              {(stochData.at(-1)?.k ?? 50) > 80 && <span style={{ color: '#FF3333' }}> OVERBOUGHT</span>}
+            </span>
+          </div>
+          <div className="h-12">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stochData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <YAxis domain={[0, 100]} hide />
+                <ReferenceLine y={80} stroke="#FF333355" strokeDasharray="2 2" />
+                <ReferenceLine y={20} stroke="#00FF6655" strokeDasharray="2 2" />
+                <Line type="monotone" dataKey="k" stroke="#CCA800" dot={false} strokeWidth={1.5} isAnimationActive={false} />
+                <Line type="monotone" dataKey="d" stroke="#00BFFF" dot={false} strokeWidth={1} strokeDasharray="3 2" isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}

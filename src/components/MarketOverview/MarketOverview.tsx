@@ -15,12 +15,15 @@ export default function MarketOverview() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-3 py-2 border-b border-bloomberg-border flex items-center justify-between">
-        <span className="text-bloomberg-amber text-xs font-bold uppercase tracking-wider">
-          Market Overview
-        </span>
-        <span className="text-bloomberg-text-muted text-[10px]">
-          AUTO-REFRESH 10S
+      <div className="px-2 py-1.5 border-b border-bloomberg-border flex items-center justify-between shrink-0" style={{ background: '#001c1c' }}>
+        <div className="flex items-center gap-2">
+          <span className="text-bloomberg-orange text-[9px] font-bold tracking-widest uppercase">
+            GLOBAL MARKETS
+          </span>
+          <span className="text-bloomberg-text-muted text-[8px]">EQUITIES / FUTURES / FX / CRYPTO</span>
+        </div>
+        <span className="text-bloomberg-text-muted text-[8px] tabular-nums">
+          REFRESH 10S
         </span>
       </div>
 
@@ -42,7 +45,7 @@ export default function MarketOverview() {
         )}
 
         {quotes && (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-px" style={{ gap: 1 }}>
             {quotes.map((quote) => (
               <MarketTile key={quote.symbol} quote={quote} />
             ))}

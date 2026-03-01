@@ -63,16 +63,16 @@ const SECTORS: { name: string; symbols: { symbol: string; name: string; weight: 
 const ALL_SYMBOLS = SECTORS.flatMap((s) => s.symbols.map((sym) => sym.symbol));
 
 function getHeatColor(pct: number): string {
-  if (pct >= 3) return '#00c853';
-  if (pct >= 2) return '#00a844';
-  if (pct >= 1) return '#008836';
-  if (pct >= 0.5) return '#006828';
-  if (pct >= 0) return '#1a3a1a';
-  if (pct >= -0.5) return '#3a1a1a';
-  if (pct >= -1) return '#682800';
-  if (pct >= -2) return '#882200';
-  if (pct >= -3) return '#a81800';
-  return '#ff1744';
+  if (pct >= 3) return '#004d22';
+  if (pct >= 2) return '#003d1c';
+  if (pct >= 1) return '#002e15';
+  if (pct >= 0.5) return '#001f0e';
+  if (pct >= 0) return '#050f05';
+  if (pct >= -0.5) return '#0f0505';
+  if (pct >= -1) return '#1f0000';
+  if (pct >= -2) return '#330000';
+  if (pct >= -3) return '#4d0000';
+  return '#660000';
 }
 
 export default function HeatMap() {
@@ -91,11 +91,11 @@ export default function HeatMap() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-3 py-2 border-b border-bloomberg-border flex items-center justify-between">
-        <span className="text-bloomberg-amber text-xs font-bold uppercase tracking-wider">
-          Market Heat Map
+      <div className="px-2 py-1.5 border-b border-bloomberg-border flex items-center justify-between shrink-0" style={{ background: '#001c1c' }}>
+        <span className="text-bloomberg-orange text-[9px] font-bold tracking-widest uppercase">
+          HEAT MAP
         </span>
-        <span className="text-bloomberg-text-muted text-[10px]">S&P 500 TOP HOLDINGS</span>
+        <span className="text-bloomberg-text-muted text-[8px]">S&P 500 TOP HOLDINGS</span>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
@@ -132,10 +132,10 @@ export default function HeatMap() {
                           flex: `${sym.weight} 1 0`,
                         }}
                       >
-                        <span className="text-white font-bold text-[10px] leading-none">
+                        <span className="font-bold text-[10px] leading-none" style={{ color: pct >= 0 ? '#00FF66' : '#FF3333' }}>
                           {sym.name}
                         </span>
-                        <span className="text-white/80 text-[9px] leading-none mt-0.5">
+                        <span className="text-[9px] leading-none mt-0.5" style={{ color: pct >= 0 ? '#00cc52' : '#cc2222' }}>
                           {formatPercent(pct)}
                         </span>
                       </button>

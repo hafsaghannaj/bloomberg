@@ -12,7 +12,7 @@ export default function Sparkline({ data, color, height = 30 }: Props) {
   if (!data || data.length === 0) return null;
 
   const isPositive = data[data.length - 1].value >= data[0].value;
-  const lineColor = color || (isPositive ? '#00c853' : '#ff1744');
+  const lineColor = color || (isPositive ? '#00FF66' : '#FF3333');
 
   return (
     <ResponsiveContainer width="100%" height={height}>

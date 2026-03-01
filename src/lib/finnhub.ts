@@ -2,6 +2,114 @@ import { NewsItem } from '@/types';
 
 const FINNHUB_BASE = 'https://finnhub.io/api/v1';
 
+// ─── Analyst / Earnings types ─────────────────────────────────────────────────
+
+export interface RecommendationTrend {
+  period: string;
+  strongBuy: number;
+  buy: number;
+  hold: number;
+  sell: number;
+  strongSell: number;
+}
+
+export interface EarningsRecord {
+  symbol: string;
+  period: string;
+  quarter: number;
+  year: number;
+  actual: number | null;
+  estimate: number | null;
+  surprise: number | null;
+  surprisePercent: number | null;
+}
+
+export interface EarningsCalendarItem {
+  symbol: string;
+  date: string;
+  hour: string;
+  epsEstimate: number | null;
+  revenueEstimate: number | null;
+  quarter: number;
+  year: number;
+}
+
+// ─── Analyst / Earnings functions ─────────────────────────────────────────────
+
+export async function getRecommendationTrend(symbol: string): Promise<RecommendationTrend[]> {
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (!apiKey) return [];
+  try {
+    const res = await fetch(
+      `${FINNHUB_BASE}/stock/recommendation?symbol=${symbol}&token=${apiKey}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as Array<Record<string, unknown>>;
+    return data.slice(0, 6).map((d) => ({
+      period: String(d.period ?? ''),
+      strongBuy: Number(d.strongBuy ?? 0),
+      buy: Number(d.buy ?? 0),
+      hold: Number(d.hold ?? 0),
+      sell: Number(d.sell ?? 0),
+      strongSell: Number(d.strongSell ?? 0),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getEarningsHistory(symbol: string): Promise<EarningsRecord[]> {
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (!apiKey) return [];
+  try {
+    const res = await fetch(
+      `${FINNHUB_BASE}/stock/earnings?symbol=${symbol}&token=${apiKey}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as Array<Record<string, unknown>>;
+    return data.slice(0, 8).map((d) => ({
+      symbol: String(d.symbol ?? symbol),
+      period: String(d.period ?? ''),
+      quarter: Number(d.quarter ?? 0),
+      year: Number(d.year ?? 0),
+      actual: d.actual != null ? Number(d.actual) : null,
+      estimate: d.estimate != null ? Number(d.estimate) : null,
+      surprise: d.surprise != null ? Number(d.surprise) : null,
+      surprisePercent: d.surprisePercent != null ? Number(d.surprisePercent) : null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getEarningsCalendar(from: string, to: string): Promise<EarningsCalendarItem[]> {
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (!apiKey) return [];
+  try {
+    const res = await fetch(
+      `${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${apiKey}`,
+      { next: { revalidate: 1800 } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as { earningsCalendar?: Array<Record<string, unknown>> };
+    return (data.earningsCalendar ?? [])
+      .map((d) => ({
+        symbol: String(d.symbol ?? ''),
+        date: String(d.date ?? ''),
+        hour: String(d.hour ?? ''),
+        epsEstimate: d.epsEstimate != null ? Number(d.epsEstimate) : null,
+        revenueEstimate: d.revenueEstimate != null ? Number(d.revenueEstimate) : null,
+        quarter: Number(d.quarter ?? 0),
+        year: Number(d.year ?? 0),
+      }))
+      .filter((d) => d.symbol && d.date);
+  } catch {
+    return [];
+  }
+}
+
 export async function getMarketNews(category = 'general'): Promise<NewsItem[]> {
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) {

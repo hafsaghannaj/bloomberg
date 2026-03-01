@@ -45,23 +45,26 @@ function PriceChartInner({ symbol }: Props) {
 
       const chart = createChart(containerRef.current, {
         layout: {
-          background: { color: '#111111' },
-          textColor: '#b0b0b0',
+          background: { color: '#001616' },
+          textColor: '#009090',
+          fontSize: 10,
+          fontFamily: '"IBM Plex Mono", "Source Code Pro", monospace',
         },
         grid: {
-          vertLines: { color: '#1a1a1a' },
-          horzLines: { color: '#1a1a1a' },
+          vertLines: { color: '#002222' },
+          horzLines: { color: '#002222' },
         },
         crosshair: {
-          vertLine: { color: '#ff8c00', width: 1, style: 2 },
-          horzLine: { color: '#ff8c00', width: 1, style: 2 },
+          vertLine: { color: '#CCA800', width: 1, style: 2 },
+          horzLine: { color: '#CCA800', width: 1, style: 2 },
+          mode: 1,
         },
         timeScale: {
-          borderColor: '#2a2a2a',
+          borderColor: '#003333',
           timeVisible: timeframe === '1D' || timeframe === '1W',
         },
         rightPriceScale: {
-          borderColor: '#2a2a2a',
+          borderColor: '#003333',
         },
         width: containerRef.current.clientWidth,
         height: containerRef.current.clientHeight,
@@ -69,17 +72,17 @@ function PriceChartInner({ symbol }: Props) {
 
       if (timeframe === '1D') {
         seriesRef.current = chart.addSeries(LineSeries, {
-          color: '#ff8c00',
-          lineWidth: 2,
+          color: '#CCA800',
+          lineWidth: 1,
         });
       } else {
         seriesRef.current = chart.addSeries(CandlestickSeries, {
-          upColor: '#00c853',
-          downColor: '#ff1744',
-          wickUpColor: '#00c853',
-          wickDownColor: '#ff1744',
-          borderUpColor: '#00c853',
-          borderDownColor: '#ff1744',
+          upColor: '#00FF66',
+          downColor: '#FF3333',
+          wickUpColor: '#00FF66',
+          wickDownColor: '#FF3333',
+          borderUpColor: '#00FF66',
+          borderDownColor: '#FF3333',
         });
       }
 
@@ -87,16 +90,16 @@ function PriceChartInner({ symbol }: Props) {
       indicatorSeriesRef.current.clear();
 
       if (indicators.has('SMA20')) {
-        const sma = chart.addSeries(LineSeries, { color: '#2196f3', lineWidth: 1 });
+        const sma = chart.addSeries(LineSeries, { color: '#00BFFF', lineWidth: 1 });
         indicatorSeriesRef.current.set('SMA20', sma);
       }
       if (indicators.has('SMA50')) {
-        const sma = chart.addSeries(LineSeries, { color: '#ffbf00', lineWidth: 1 });
+        const sma = chart.addSeries(LineSeries, { color: '#AA8800', lineWidth: 1 });
         indicatorSeriesRef.current.set('SMA50', sma);
       }
       if (indicators.has('BB')) {
-        const upper = chart.addSeries(LineSeries, { color: '#9c27b0', lineWidth: 1 });
-        const lower = chart.addSeries(LineSeries, { color: '#9c27b0', lineWidth: 1 });
+        const upper = chart.addSeries(LineSeries, { color: '#CC99FF', lineWidth: 1, lineStyle: 2 });
+        const lower = chart.addSeries(LineSeries, { color: '#CC99FF', lineWidth: 1, lineStyle: 2 });
         indicatorSeriesRef.current.set('BB_upper', upper);
         indicatorSeriesRef.current.set('BB_lower', lower);
       }
@@ -221,7 +224,7 @@ function PriceChartInner({ symbol }: Props) {
           <div className="flex items-end h-10 gap-px">
             {rsiData.slice(-60).map((p, i) => {
               const height = (p.value / 100) * 100;
-              const color = p.value > 70 ? '#ff1744' : p.value < 30 ? '#00c853' : '#666';
+              const color = p.value > 70 ? '#FF3333' : p.value < 30 ? '#00FF66' : '#004e4e';
               return (
                 <div
                   key={i}

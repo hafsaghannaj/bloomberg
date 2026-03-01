@@ -126,7 +126,7 @@ export default function DailyNotes() {
       const addHeader = (pageNum: number) => {
         doc.setFontSize(18);
         doc.setTextColor(255, 140, 0);
-        doc.text('BLOOMBERG TERMINAL - DAILY NOTES', margin, 20);
+        doc.text('HAFSA TERMINAL - DAILY NOTES', margin, 20);
 
         doc.setFontSize(12);
         doc.setTextColor(150, 150, 150);

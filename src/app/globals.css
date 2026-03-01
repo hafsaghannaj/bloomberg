@@ -1,26 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 @theme inline {
-  --color-bloomberg-bg: #0a0a0a;
-  --color-bloomberg-bg-panel: #111111;
-  --color-bloomberg-bg-header: #1a1a1a;
-  --color-bloomberg-bg-hover: #1e1e1e;
-  --color-bloomberg-orange: #ff8c00;
-  --color-bloomberg-amber: #ffbf00;
-  --color-bloomberg-green: #00c853;
-  --color-bloomberg-red: #ff1744;
-  --color-bloomberg-blue: #2196f3;
-  --color-bloomberg-text-primary: #ff8c00;
-  --color-bloomberg-text-secondary: #b0b0b0;
-  --color-bloomberg-text-muted: #666666;
-  --color-bloomberg-border: #2a2a2a;
-  --font-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  --color-bloomberg-bg: #001616;
+  --color-bloomberg-bg-panel: #001a1a;
+  --color-bloomberg-bg-header: #001f1f;
+  --color-bloomberg-bg-hover: #002626;
+  --color-bloomberg-orange: #CCA800;
+  --color-bloomberg-amber: #AA8800;
+  --color-bloomberg-green: #00FF66;
+  --color-bloomberg-red: #FF3333;
+  --color-bloomberg-blue: #00BFFF;
+  --color-bloomberg-yellow: #FFFF00;
+  --color-bloomberg-cyan: #00FFFF;
+  --color-bloomberg-purple: #CC99FF;
+  --color-bloomberg-text-primary: #CCA800;
+  --color-bloomberg-text-secondary: #CCCCCC;
+  --color-bloomberg-text-muted: #006262;
+  --color-bloomberg-border: #003333;
+  --color-bloomberg-grid: #002222;
+  --font-mono: "IBM Plex Mono", "Source Code Pro", "JetBrains Mono", "Fira Code", "Consolas", monospace;
 }
 
 body {
-  background: var(--color-bloomberg-bg);
-  color: var(--color-bloomberg-orange);
-  font-family: var(--font-mono);
+  background: #001616;
+  color: #CCA800;
+  font-family: "IBM Plex Mono", "Source Code Pro", "JetBrains Mono", "Fira Code", "Consolas", monospace;
   overflow: hidden;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -28,29 +33,42 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* Bloomberg-style scrollbar */
+/* Institutional scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #001616;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 3px;
+  background: #003d3d;
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #004e4e;
 }
 
-/* Blinking cursor for command bar */
+/* Blinking terminal cursor */
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 .cursor-blink {
-  animation: blink 1s step-end infinite;
+  animation: blink 0.9s step-end infinite;
+}
+
+/* Block cursor for command bar */
+@keyframes block-blink {
+  0%, 49% { background-color: #CCA800; color: #001616; }
+  50%, 100% { background-color: transparent; color: #CCA800; }
+}
+.cursor-block {
+  animation: block-blink 0.9s step-end infinite;
+  display: inline-block;
+  width: 0.6ch;
+  height: 1.1em;
+  vertical-align: text-bottom;
 }
 
 /* Scrolling ticker tape */
@@ -59,45 +77,88 @@ body {
   100% { transform: translateX(-50%); }
 }
 .ticker-scroll {
-  animation: ticker-scroll 30s linear infinite;
+  animation: ticker-scroll 45s linear infinite;
 }
 .ticker-scroll:hover {
   animation-play-state: paused;
 }
 
-/* Fade-in animation */
+/* Fade-in */
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(3px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.2s ease-out;
 }
 
-/* Slide-in animation */
+/* Slide-in from left */
 @keyframes slide-in {
-  from { opacity: 0; transform: translateX(-8px); }
+  from { opacity: 0; transform: translateX(-6px); }
   to { opacity: 1; transform: translateX(0); }
 }
 .animate-slide-in {
-  animation: slide-in 0.2s ease-out;
+  animation: slide-in 0.15s ease-out;
 }
 
-/* Price flash animations */
+/* Price flash: green uptick */
 @keyframes flash-green {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(0, 200, 83, 0.2); }
-  100% { background-color: transparent; }
+  0% { background-color: transparent; color: inherit; }
+  20% { background-color: rgba(0, 255, 102, 0.25); color: #00FF66; }
+  100% { background-color: transparent; color: inherit; }
 }
-@keyframes flash-red {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(255, 23, 68, 0.2); }
-  100% { background-color: transparent; }
+.flash-green {
+  animation: flash-green 0.7s ease-out;
 }
-.flash-green { animation: flash-green 0.6s ease-out; }
-.flash-red { animation: flash-red 0.6s ease-out; }
 
-/* Notification toast */
+/* Price flash: red downtick */
+@keyframes flash-red {
+  0% { background-color: transparent; color: inherit; }
+  20% { background-color: rgba(255, 51, 51, 0.25); color: #FF3333; }
+  100% { background-color: transparent; color: inherit; }
+}
+.flash-red {
+  animation: flash-red 0.7s ease-out;
+}
+
+/* Order book size bar pulse on update */
+@keyframes bar-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+.bar-pulse {
+  animation: bar-pulse 0.4s ease-out;
+}
+
+/* Breaking news scroll */
+@keyframes breaking-scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.breaking-scroll {
+  animation: breaking-scroll 20s linear infinite;
+}
+
+/* Data refresh dot */
+@keyframes refresh-dot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.refresh-dot {
+  animation: refresh-dot 1.5s ease-in-out infinite;
+}
+
+/* Latency indicator pulse */
+@keyframes latency-good {
+  0%, 100% { color: #00FF66; }
+  50% { color: #00cc52; }
+}
+.latency-good {
+  animation: latency-good 2s ease-in-out infinite;
+}
+
+/* Toast notifications */
 @keyframes toast-in {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -106,14 +167,31 @@ body {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(100%); opacity: 0; }
 }
-.toast-enter { animation: toast-in 0.3s ease-out; }
-.toast-exit { animation: toast-out 0.3s ease-in; }
+.toast-enter { animation: toast-in 0.25s ease-out; }
+.toast-exit { animation: toast-out 0.25s ease-in; }
+
+/* Grid overlay for charts */
+.chart-grid {
+  background-image:
+    linear-gradient(#002222 1px, transparent 1px),
+    linear-gradient(90deg, #002222 1px, transparent 1px);
+  background-size: 40px 40px;
+}
 
 /* react-grid-layout overrides */
 .react-grid-item > .react-resizable-handle::after {
-  border-color: #ff8c00 !important;
+  border-color: #CCA800 !important;
 }
 .react-grid-item.react-grid-placeholder {
-  background: #ff8c00 !important;
-  opacity: 0.15 !important;
+  background: #CCA800 !important;
+  opacity: 0.1 !important;
+}
+
+/* Orderbook bar fill */
+.ob-bar-bid {
+  background: linear-gradient(90deg, rgba(0, 255, 102, 0.12) 0%, transparent 100%);
+}
+.ob-bar-ask {
+  background: linear-gradient(90deg, rgba(255, 51, 51, 0.12) 0%, transparent 100%);
+  direction: rtl;
 }

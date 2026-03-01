@@ -17,11 +17,11 @@ export default function Watchlist() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-3 py-2 border-b border-bloomberg-border flex items-center justify-between">
-        <span className="text-bloomberg-amber text-xs font-bold uppercase tracking-wider">
-          Watchlist
+      <div className="px-2 py-1.5 border-b border-bloomberg-border flex items-center justify-between shrink-0" style={{ background: '#001c1c' }}>
+        <span className="text-bloomberg-orange text-[9px] font-bold tracking-widest uppercase">
+          WATCHLIST
         </span>
-        <span className="text-bloomberg-text-muted text-[10px]">
+        <span className="text-bloomberg-text-muted text-[8px] tabular-nums">
           {watchlist.length} ITEMS
         </span>
       </div>

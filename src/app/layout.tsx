@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
-import { JetBrains_Mono } from 'next/font/google';
+import { IBM_Plex_Mono } from 'next/font/google';
 import { Providers } from './providers';
 import './globals.css';
 
-const mono = JetBrains_Mono({
+const mono = IBM_Plex_Mono({
   subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-mono',
 });
 
 export const metadata: Metadata = {
-  title: 'Bloomberg Terminal',
-  description: 'Bloomberg Terminal Clone',
+  title: 'HAFSA Terminal',
+  description: 'HAFSA Terminal',
 };
 
 export default function RootLayout({
@@ -24,7 +25,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="theme-color" content="#0a0a0a" />
+        <meta name="theme-color" content="#001616" />
         <script dangerouslySetInnerHTML={{ __html: `
           if (!window.Capacitor) {
             window.Capacitor = {

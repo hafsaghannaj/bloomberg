@@ -5,7 +5,7 @@ import { useTerminalStore } from '@/store/terminal';
 import { useQuotes } from '@/hooks/useQuote';
 import { formatPrice } from '@/lib/format';
 
-const COLORS = ['#ff8c00', '#ffbf00', '#00c853', '#2196f3', '#ff1744', '#9c27b0', '#00bcd4', '#ff5722'];
+const COLORS = ['#CCA800', '#ffbf00', '#00c853', '#2196f3', '#ff1744', '#9c27b0', '#00bcd4', '#ff5722'];
 
 export default function PortfolioBreakdown() {
   const { positions } = useTerminalStore();
@@ -66,7 +66,7 @@ export default function PortfolioBreakdown() {
                   innerRadius={35}
                   outerRadius={65}
                   dataKey="value"
-                  stroke="#0a0a0a"
+                  stroke="#002222"
                   strokeWidth={2}
                 >
                   {allocationData.map((_, i) => (
@@ -99,17 +99,17 @@ export default function PortfolioBreakdown() {
           <div className="h-[140px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={pnlData} layout="vertical">
-                <XAxis type="number" tick={{ fill: '#666', fontSize: 10 }} axisLine={{ stroke: '#2a2a2a' }} />
+                <XAxis type="number" tick={{ fill: '#007a7a', fontSize: 10 }} axisLine={{ stroke: '#004545' }} />
                 <YAxis
                   type="category"
                   dataKey="name"
-                  tick={{ fill: '#ff8c00', fontSize: 10, fontWeight: 'bold' }}
-                  axisLine={{ stroke: '#2a2a2a' }}
+                  tick={{ fill: '#CCA800', fontSize: 10, fontWeight: 'bold' }}
+                  axisLine={{ stroke: '#004545' }}
                   width={40}
                 />
                 <Tooltip
-                  contentStyle={{ background: '#111', border: '1px solid #2a2a2a', borderRadius: 4 }}
-                  labelStyle={{ color: '#ff8c00', fontSize: 11 }}
+                  contentStyle={{ background: '#002a2a', border: '1px solid #004545', borderRadius: 4 }}
+                  labelStyle={{ color: '#CCA800', fontSize: 11 }}
                   itemStyle={{ color: '#b0b0b0', fontSize: 11 }}
                   formatter={(value) => [formatPrice(Number(value)), 'P&L']}
                 />

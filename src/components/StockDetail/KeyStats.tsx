@@ -33,11 +33,15 @@ export default function KeyStats({ quote, summary }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-0">
       {stats.map((stat) => (
-        <div key={stat.label} className="flex justify-between py-0.5 border-b border-bloomberg-border/50">
-          <span className="text-bloomberg-text-muted text-xs">{stat.label}</span>
-          <span className="text-bloomberg-text-secondary text-xs font-bold">{stat.value}</span>
+        <div
+          key={stat.label}
+          className="flex justify-between items-center py-0.5 border-b"
+          style={{ borderColor: '#002828' }}
+        >
+          <span className="text-[9px]" style={{ color: '#006262' }}>{stat.label}</span>
+          <span className="text-[9px] font-bold tabular-nums" style={{ color: '#CCCCCC' }}>{stat.value}</span>
         </div>
       ))}
     </div>

@@ -1,0 +1,13 @@
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: ============================================================
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: Bloomberg Price Recorder starting
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: Tickers: ['SPX Index', 'SPY US Equity']
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: Interval: 1 min
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: Market hours: 09:30 - 16:00 ET
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: Output: /Users/hafsaghannaj/bloomberg terminal demo/bloomberg-terminal/bloomberg-recorder/bloomberg_data
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: ============================================================
+2026-02-14 04:55:35,628 [INFO] bloomberg_recorder: Today is a weekend. Recorder will wait for Monday.
+2026-02-14 04:55:35,628 [WARNING] bloomberg_recorder: blpapi not available - running in dry-run mode
+2026-02-14 04:55:35,628 [WARNING] bloomberg_recorder: Bloomberg not connected. Running in offline/dry-run mode. CSV files will be created with placeholder data.
+2026-02-14 04:55:35,628 [DEBUG] bloomberg_recorder: Weekend - sleeping 5 min before recheck
+2026-02-14 04:55:50,572 [INFO] bloomberg_recorder: Received signal 15. Shutting down...
+2026-02-14 05:00:35,632 [INFO] bloomberg_recorder: Recorder stopped.

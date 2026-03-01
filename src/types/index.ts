@@ -71,7 +71,30 @@ export type PanelType =
   | 'portfolio'
   | 'chart'
   | 'notes'
-  | 'price-recorder';
+  | 'price-recorder'
+  | 'macro'
+  | 'earnings'
+  | 'movers';
+
+export interface YieldPoint {
+  maturity: string;
+  months: number;
+  current: number | null;
+  yearAgo: number | null;
+}
+
+export interface MacroIndicator {
+  id: string;
+  name: string;
+  shortName: string;
+  value: number | null;
+  change: number | null;
+  changeLabel: string;
+  unit: string;
+  frequency: string;
+  date: string;
+  status: 'normal' | 'warning' | 'danger';
+}
 
 export type RecorderInterval = 1 | 5 | 15 | 30 | 60;
 
@@ -111,3 +134,20 @@ export interface SearchResult {
   exchDisp?: string;
   typeDisp?: string;
 }
+
+export interface PolygonLiveTrade {
+  price: number;
+  size: number;
+  timestamp: number;
+  symbol: string;
+}
+
+export interface PolygonLiveQuote {
+  bidPrice: number;
+  bidSize: number;
+  askPrice: number;
+  askSize: number;
+  symbol: string;
+}
+
+export type PolygonWsStatus = 'disconnected' | 'connecting' | 'connected' | 'authenticated';

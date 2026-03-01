@@ -18,6 +18,23 @@ export function parseCommand(input: string): CommandAction {
     REC: 'price-recorder',
     RECORDER: 'price-recorder',
     PREC: 'price-recorder',
+    MACRO: 'macro',
+    MCRO: 'macro',
+    YIELD: 'macro',
+    FRED: 'macro',
+    GDP: 'macro',
+    EARN: 'earnings',
+    EARNINGS: 'earnings',
+    ECO: 'earnings',
+    ECAL: 'earnings',
+    ERN: 'earnings',
+    MOV: 'movers',
+    MOVERS: 'movers',
+    GAIN: 'movers',
+    GAINERS: 'movers',
+    LOSERS: 'movers',
+    ACTIVES: 'movers',
+    SCREEN: 'movers',
   };
 
   if (trimmed in navCommands) {

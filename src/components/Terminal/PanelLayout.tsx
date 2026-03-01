@@ -11,13 +11,17 @@ import AlertsPanel from '@/components/UI/AlertsPanel';
 import PortfolioBreakdown from '@/components/Portfolio/PortfolioBreakdown';
 import DailyNotes from '@/components/Notes/DailyNotes';
 import PriceRecorder from '@/components/PriceRecorder/PriceRecorder';
+import MacroDashboard from '@/components/MacroDashboard/MacroDashboard';
+import PortfolioRisk from '@/components/Portfolio/PortfolioRisk';
+import EarningsCalendar from '@/components/EarningsCalendar/EarningsCalendar';
+import MoversPanel from '@/components/Movers/MoversPanel';
 
 export default function PanelLayout() {
   const { activeView } = useTerminalStore();
 
   if (activeView === 'stock-detail') {
     return (
-      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-border animate-fade-in">
+      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-grid animate-fade-in">
         <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
           <StockDetail />
         </div>
@@ -38,7 +42,7 @@ export default function PanelLayout() {
 
   if (activeView === 'watchlist') {
     return (
-      <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-px bg-bloomberg-border animate-fade-in">
+      <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-px bg-bloomberg-grid animate-fade-in">
         <div className="bg-bloomberg-bg overflow-hidden">
           <Watchlist />
         </div>
@@ -59,7 +63,7 @@ export default function PanelLayout() {
 
   if (activeView === 'notes') {
     return (
-      <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-px bg-bloomberg-border animate-fade-in">
+      <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-px bg-bloomberg-grid animate-fade-in">
         <div className="lg:col-span-2 bg-bloomberg-bg overflow-hidden">
           <DailyNotes />
         </div>
@@ -72,7 +76,7 @@ export default function PanelLayout() {
 
   if (activeView === 'price-recorder') {
     return (
-      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-border animate-fade-in">
+      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-grid animate-fade-in">
         <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
           <PriceRecorder />
         </div>
@@ -90,12 +94,25 @@ export default function PanelLayout() {
 
   if (activeView === 'portfolio') {
     return (
-      <div className="h-full grid grid-cols-1 lg:grid-cols-3 gap-px bg-bloomberg-border animate-fade-in">
+      <div className="h-full grid grid-cols-1 lg:grid-cols-5 gap-px bg-bloomberg-grid animate-fade-in">
         <div className="bg-bloomberg-bg overflow-hidden">
           <Portfolio />
         </div>
         <div className="bg-bloomberg-bg overflow-hidden">
           <PortfolioBreakdown />
+        </div>
+        <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
+          <PortfolioRisk />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeView === 'macro') {
+    return (
+      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-grid animate-fade-in">
+        <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
+          <MacroDashboard />
         </div>
         <div className="bg-bloomberg-bg overflow-hidden">
           <NewsFeed />
@@ -104,9 +121,30 @@ export default function PanelLayout() {
     );
   }
 
+  if (activeView === 'earnings') {
+    return (
+      <div className="h-full grid grid-cols-1 lg:grid-cols-4 gap-px bg-bloomberg-grid animate-fade-in">
+        <div className="lg:col-span-3 bg-bloomberg-bg overflow-hidden">
+          <EarningsCalendar />
+        </div>
+        <div className="bg-bloomberg-bg overflow-hidden">
+          <NewsFeed />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeView === 'movers') {
+    return (
+      <div className="h-full bg-bloomberg-bg overflow-hidden animate-fade-in">
+        <MoversPanel />
+      </div>
+    );
+  }
+
   // Default: market-overview with heat map
   return (
-    <div className="h-full grid grid-rows-[1fr_300px] lg:grid-rows-1 lg:grid-cols-4 gap-px bg-bloomberg-border animate-fade-in">
+    <div className="h-full grid grid-rows-[1fr_300px] lg:grid-rows-1 lg:grid-cols-4 gap-px bg-bloomberg-grid animate-fade-in">
       <div className="lg:col-span-2 bg-bloomberg-bg overflow-hidden">
         <MarketOverview />
       </div>

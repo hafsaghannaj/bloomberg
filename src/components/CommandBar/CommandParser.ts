@@ -35,6 +35,12 @@ export function parseCommand(input: string): CommandAction {
     LOSERS: 'movers',
     ACTIVES: 'movers',
     SCREEN: 'movers',
+    SECT: 'sector-rotation',
+    SECTOR: 'sector-rotation',
+    SECTORS: 'sector-rotation',
+    ROT: 'sector-rotation',
+    ROTATION: 'sector-rotation',
+    RRG: 'sector-rotation',
   };
 
   if (trimmed in navCommands) {

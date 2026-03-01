@@ -15,6 +15,7 @@ import MacroDashboard from '@/components/MacroDashboard/MacroDashboard';
 import PortfolioRisk from '@/components/Portfolio/PortfolioRisk';
 import EarningsCalendar from '@/components/EarningsCalendar/EarningsCalendar';
 import MoversPanel from '@/components/Movers/MoversPanel';
+import SectorRotation from '@/components/SectorRotation/SectorRotation';
 
 export default function PanelLayout() {
   const { activeView } = useTerminalStore();
@@ -138,6 +139,14 @@ export default function PanelLayout() {
     return (
       <div className="h-full bg-bloomberg-bg overflow-hidden animate-fade-in">
         <MoversPanel />
+      </div>
+    );
+  }
+
+  if (activeView === 'sector-rotation') {
+    return (
+      <div className="h-full bg-bloomberg-bg overflow-hidden animate-fade-in">
+        <SectorRotation />
       </div>
     );
   }

@@ -54,6 +54,11 @@ export default function TabBar() {
         active={activeView === 'movers'}
         onClick={() => setActiveView('movers')}
       />
+      <NavTab
+        label="SECT"
+        active={activeView === 'sector-rotation'}
+        onClick={() => setActiveView('sector-rotation')}
+      />
 
       {/* Vertical separator */}
       {tabs.length > 0 && (

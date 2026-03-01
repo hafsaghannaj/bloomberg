@@ -74,7 +74,8 @@ export type PanelType =
   | 'price-recorder'
   | 'macro'
   | 'earnings'
-  | 'movers';
+  | 'movers'
+  | 'sector-rotation';
 
 export interface YieldPoint {
   maturity: string;

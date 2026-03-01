@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server';
 import { polygonSearch } from '@/lib/polygon';
 import { searchSymbols } from '@/lib/yahoo';

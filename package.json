@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ios:build": "cp next.config.ts next.config.backup.ts && cp next.config.ios.ts next.config.ts && next build && cp next.config.backup.ts next.config.ts && rm next.config.backup.ts && npx cap sync ios",
+    "ios:build": "bash scripts/ios-build.sh",
     "ios:sync": "npx cap sync ios",
     "ios:open": "npx cap open ios",
     "ios:dev": "npx cap run ios --livereload --external"

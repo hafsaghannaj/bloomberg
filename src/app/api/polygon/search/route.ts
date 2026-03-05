@@ -1,21 +1,23 @@
 export const dynamic = 'force-static';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { polygonSearch } from '@/lib/polygon';
 import { searchSymbols } from '@/lib/yahoo';
+import { enforceRateLimit, parseSearchQuery, secureJson } from '@/lib/server/security';
+
+const CACHE_HEADERS = { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' };
 
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get('q');
-  if (!q) {
-    return NextResponse.json({ error: 'q param required' }, { status: 400 });
-  }
+  const limited = enforceRateLimit(req, { key: 'polygon-search', max: 120, windowMs: 60_000 });
+  if (limited) return limited;
+
+  const q = parseSearchQuery(req.nextUrl.searchParams.get('q'));
+  if (!q) return secureJson({ error: 'valid q param required' }, { status: 400 });
 
   // Try Polygon first
   try {
     const data = await polygonSearch(q);
     if (data.length > 0) {
-      return NextResponse.json(data, {
-        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
-      });
+      return secureJson(data, { headers: CACHE_HEADERS });
     }
   } catch {
     // fall through to Yahoo
@@ -39,11 +41,9 @@ export async function GET(req: NextRequest) {
       exchDisp: r.exchDisp,
       typeDisp: r.typeDisp,
     }));
-    return NextResponse.json(results, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
-    });
+    return secureJson(results, { headers: CACHE_HEADERS });
   } catch (err) {
     console.error('Search fallback error:', err);
-    return NextResponse.json({ error: 'Failed to search' }, { status: 500 });
+    return secureJson({ error: 'Failed to search' }, { status: 500 });
   }
 }

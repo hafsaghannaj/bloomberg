@@ -1,6 +1,7 @@
 export const dynamic = 'force-static';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
+import { enforceRateLimit, secureJson } from '@/lib/server/security';
 
 const yahooFinance = new YahooFinance();
 
@@ -16,6 +17,9 @@ const SCREENER_MAP = {
 type ScreenerKey = keyof typeof SCREENER_MAP;
 
 export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req, { key: 'movers', max: 60, windowMs: 60_000 });
+  if (limited) return limited;
+
   const type = (req.nextUrl.searchParams.get('type') ?? 'gainers') as ScreenerKey;
   const scrId = SCREENER_MAP[type] ?? 'day_gainers';
 
@@ -36,11 +40,11 @@ export async function GET(req: NextRequest) {
       currency: String(q.currency ?? 'USD'),
     }));
 
-    return NextResponse.json(quotes, {
+    return secureJson(quotes, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
     });
   } catch (err) {
     console.error('[movers] screener error:', err);
-    return NextResponse.json([], { status: 200 });
+    return secureJson([], { status: 200 });
   }
 }

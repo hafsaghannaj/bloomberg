@@ -1,7 +1,8 @@
 export const dynamic = 'force-static';
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { polygonAggs } from '@/lib/polygon';
 import { getChart } from '@/lib/yahoo';
+import { enforceRateLimit, secureJson } from '@/lib/server/security';
 
 const SECTORS = [
   { symbol: 'XLK',  name: 'Technology',          short: 'TECH' },
@@ -60,7 +61,10 @@ function ytdRet(bars: DailyBar[]): number {
   return base === 0 ? 0 : (cur - base) / base;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req, { key: 'sector-rotation', max: 60, windowMs: 60_000 });
+  if (limited) return limited;
+
   try {
     const allSyms = [...SECTORS.map(s => s.symbol), 'SPY'];
     const allBars = await Promise.all(allSyms.map(fetchDaily));
@@ -111,12 +115,12 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(
+    return secureJson(
       { sectors, spy, updatedAt: Date.now() },
       { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } }
     );
   } catch (err) {
     console.error('Sector rotation error:', err);
-    return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    return secureJson({ error: 'Failed' }, { status: 500 });
   }
 }

@@ -1,7 +1,15 @@
 export const dynamic = 'force-static';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { polygonAggs, isEquityTicker } from '@/lib/polygon';
 import { getChart, rangeToInterval } from '@/lib/yahoo';
+import {
+  enforceRateLimit,
+  parseChartRange,
+  parseSymbol,
+  secureJson,
+} from '@/lib/server/security';
+
+const CACHE_HEADERS = { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30' };
 
 function rangeToPolygonParams(range: string): {
   multiplier: number;
@@ -40,14 +48,12 @@ function rangeToPolygonParams(range: string): {
 }
 
 export async function GET(req: NextRequest) {
-  const symbol = req.nextUrl.searchParams.get('symbol');
-  const range = req.nextUrl.searchParams.get('range') || '1M';
+  const limited = enforceRateLimit(req, { key: 'polygon-aggs', max: 120, windowMs: 60_000 });
+  if (limited) return limited;
 
-  if (!symbol) {
-    return NextResponse.json({ error: 'symbol param required' }, { status: 400 });
-  }
-
-  const sym = symbol.toUpperCase();
+  const sym = parseSymbol(req.nextUrl.searchParams.get('symbol'));
+  if (!sym) return secureJson({ error: 'valid symbol param required' }, { status: 400 });
+  const range = parseChartRange(req.nextUrl.searchParams.get('range'));
 
   // Try Polygon first for US equities
   if (isEquityTicker(sym)) {
@@ -55,9 +61,7 @@ export async function GET(req: NextRequest) {
       const { multiplier, timespan, from, to } = rangeToPolygonParams(range);
       const data = await polygonAggs(sym, multiplier, timespan, from, to);
       if (data.length > 0) {
-        return NextResponse.json(data, {
-          headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30' },
-        });
+        return secureJson(data, { headers: CACHE_HEADERS });
       }
     } catch {
       // fall through to Yahoo
@@ -76,11 +80,9 @@ export async function GET(req: NextRequest) {
       close: q.close,
       volume: q.volume,
     }));
-    return NextResponse.json(quotes, {
-      headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30' },
-    });
+    return secureJson(quotes, { headers: CACHE_HEADERS });
   } catch (err) {
     console.error('Aggs fallback error:', err);
-    return NextResponse.json({ error: 'Failed to fetch aggs' }, { status: 500 });
+    return secureJson({ error: 'Failed to fetch aggs' }, { status: 500 });
   }
 }

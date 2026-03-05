@@ -1,4 +1,5 @@
 import type { Quote, ChartDataPoint, SearchResult, NewsItem } from '@/types';
+import { fetchWithTimeout } from '@/lib/http';
 
 const API_KEY = process.env.POLYGON_API_KEY ?? '';
 const BASE = 'https://api.polygon.io';
@@ -101,8 +102,8 @@ function mapSnapshotTicker(t: PolygonSnapshotTicker): Quote {
 export async function polygonSnapshot(ticker: string): Promise<Quote | null> {
   if (!API_KEY) return null;
   try {
-    const res = await fetch(
-      `${BASE}/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}?apiKey=${API_KEY}`,
+    const res = await fetchWithTimeout(
+      `${BASE}/v2/snapshot/locale/us/markets/stocks/tickers/${encodeURIComponent(ticker)}?apiKey=${encodeURIComponent(API_KEY)}`,
       { next: { revalidate: 5 } }
     );
     if (!res.ok) return null;
@@ -117,8 +118,9 @@ export async function polygonSnapshot(ticker: string): Promise<Quote | null> {
 export async function polygonSnapshots(tickers: string[]): Promise<Quote[]> {
   if (!API_KEY || tickers.length === 0) return [];
   try {
-    const res = await fetch(
-      `${BASE}/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${tickers.join(',')}&apiKey=${API_KEY}`,
+    const encodedTickers = tickers.map((t) => encodeURIComponent(t)).join(',');
+    const res = await fetchWithTimeout(
+      `${BASE}/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${encodedTickers}&apiKey=${encodeURIComponent(API_KEY)}`,
       { next: { revalidate: 5 } }
     );
     if (!res.ok) return [];
@@ -139,8 +141,8 @@ export async function polygonAggs(
 ): Promise<ChartDataPoint[]> {
   if (!API_KEY) return [];
   try {
-    const url = `${BASE}/v2/aggs/ticker/${ticker}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=5000&apiKey=${API_KEY}`;
-    const res = await fetch(url, { next: { revalidate: 10 } });
+    const url = `${BASE}/v2/aggs/ticker/${encodeURIComponent(ticker)}/range/${multiplier}/${encodeURIComponent(timespan)}/${encodeURIComponent(from)}/${encodeURIComponent(to)}?adjusted=true&sort=asc&limit=5000&apiKey=${encodeURIComponent(API_KEY)}`;
+    const res = await fetchWithTimeout(url, { next: { revalidate: 10 } });
     if (!res.ok) return [];
     const json = (await res.json()) as { results: PolygonAggsResult[]; status: string };
     if (json.status !== 'OK' || !json.results) return [];
@@ -160,8 +162,8 @@ export async function polygonAggs(
 export async function polygonSearch(query: string): Promise<SearchResult[]> {
   if (!API_KEY) return [];
   try {
-    const res = await fetch(
-      `${BASE}/v3/reference/tickers?search=${encodeURIComponent(query)}&active=true&sort=ticker&order=asc&limit=10&apiKey=${API_KEY}`,
+    const res = await fetchWithTimeout(
+      `${BASE}/v3/reference/tickers?search=${encodeURIComponent(query)}&active=true&sort=ticker&order=asc&limit=10&apiKey=${encodeURIComponent(API_KEY)}`,
       { next: { revalidate: 60 } }
     );
     if (!res.ok) return [];
@@ -182,8 +184,8 @@ export async function polygonNews(symbol?: string): Promise<NewsItem[]> {
   if (!API_KEY) return [];
   try {
     const tickerParam = symbol ? `&ticker=${encodeURIComponent(symbol)}` : '';
-    const res = await fetch(
-      `${BASE}/v2/reference/news?limit=20${tickerParam}&order=desc&sort=published_utc&apiKey=${API_KEY}`,
+    const res = await fetchWithTimeout(
+      `${BASE}/v2/reference/news?limit=20${tickerParam}&order=desc&sort=published_utc&apiKey=${encodeURIComponent(API_KEY)}`,
       { next: { revalidate: 60 } }
     );
     if (!res.ok) return [];

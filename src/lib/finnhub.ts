@@ -1,4 +1,5 @@
 import { NewsItem } from '@/types';
+import { fetchWithTimeout } from '@/lib/http';
 
 const FINNHUB_BASE = 'https://finnhub.io/api/v1';
 
@@ -40,8 +41,8 @@ export async function getRecommendationTrend(symbol: string): Promise<Recommenda
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) return [];
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/stock/recommendation?symbol=${symbol}&token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/stock/recommendation?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -63,8 +64,8 @@ export async function getEarningsHistory(symbol: string): Promise<EarningsRecord
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) return [];
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/stock/earnings?symbol=${symbol}&token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/stock/earnings?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -88,8 +89,8 @@ export async function getEarningsCalendar(from: string, to: string): Promise<Ear
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) return [];
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/calendar/earnings?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 1800 } }
     );
     if (!res.ok) return [];
@@ -125,8 +126,8 @@ export async function getInsiderTransactions(symbol: string): Promise<InsiderTra
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) return [];
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/stock/insider-transactions?symbol=${symbol}&token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/stock/insider-transactions?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -164,8 +165,8 @@ export async function getEconomicCalendar(): Promise<EconomicEvent[]> {
   const apiKey = process.env.FINNHUB_API_KEY;
   if (!apiKey) return getMockEconomicEvents();
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/calendar/economic?token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/calendar/economic?token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 1800 } }
     );
     if (!res.ok) return getMockEconomicEvents();
@@ -218,8 +219,8 @@ export async function getMarketNews(category = 'general'): Promise<NewsItem[]> {
   }
 
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/news?category=${category}&token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/news?category=${encodeURIComponent(category)}&token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 60 } }
     );
     if (!res.ok) return getMockNews();
@@ -240,8 +241,8 @@ export async function getCompanyNews(symbol: string): Promise<NewsItem[]> {
   const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   try {
-    const res = await fetch(
-      `${FINNHUB_BASE}/company-news?symbol=${symbol}&from=${from}&to=${to}&token=${apiKey}`,
+    const res = await fetchWithTimeout(
+      `${FINNHUB_BASE}/company-news?symbol=${encodeURIComponent(symbol)}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&token=${encodeURIComponent(apiKey)}`,
       { next: { revalidate: 60 } }
     );
     if (!res.ok) return getMockNews(symbol);

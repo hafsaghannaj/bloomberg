@@ -1,15 +1,15 @@
 export const dynamic = 'force-static';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getQuote, getQuotes } from '@/lib/yahoo';
 import { polygonSnapshot, polygonSnapshots, isEquityTicker } from '@/lib/polygon';
+import { enforceRateLimit, parseSymbolList, secureJson } from '@/lib/server/security';
 
 export async function GET(req: NextRequest) {
-  const symbols = req.nextUrl.searchParams.get('symbols');
-  if (!symbols) {
-    return NextResponse.json({ error: 'symbols param required' }, { status: 400 });
-  }
+  const limited = enforceRateLimit(req, { key: 'quote', max: 120, windowMs: 60_000 });
+  if (limited) return limited;
 
-  const symbolList = symbols.split(',').map((s) => s.trim().toUpperCase());
+  const symbolList = parseSymbolList(req.nextUrl.searchParams.get('symbols'), 25);
+  if (!symbolList) return secureJson({ error: 'valid symbols param required' }, { status: 400 });
 
   try {
     const equitySymbols = symbolList.filter(isEquityTicker);
@@ -43,11 +43,11 @@ export async function GET(req: NextRequest) {
     // Return in original symbol order
     const ordered = symbolList.map((s) => results.get(s)).filter(Boolean);
 
-    return NextResponse.json(ordered, {
+    return secureJson(ordered, {
       headers: { 'Cache-Control': 'public, s-maxage=5, stale-while-revalidate=10' },
     });
   } catch (err) {
     console.error('Quote API error:', err);
-    return NextResponse.json({ error: 'Failed to fetch quote' }, { status: 500 });
+    return secureJson({ error: 'Failed to fetch quote' }, { status: 500 });
   }
 }

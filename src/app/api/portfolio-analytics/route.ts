@@ -1,12 +1,19 @@
 export const dynamic = 'force-static';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getChart } from '@/lib/yahoo';
+import {
+  enforceRateLimit,
+  parseSymbol,
+  secureJson,
+} from '@/lib/server/security';
 
 interface InputPosition {
   symbol: string;
   shares: number;
   avgCost: number;
 }
+
+const MAX_POSITIONS = 40;
 
 // ─── Math helpers ─────────────────────────────────────────────────────────────
 
@@ -67,19 +74,48 @@ function toCumulative(returns: number[]): number[] {
   });
 }
 
+function toFiniteNumber(value: unknown): number | null {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function sanitizePositions(raw: unknown): InputPosition[] {
+  if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_POSITIONS) return [];
+
+  const cleaned: InputPosition[] = [];
+  raw.forEach((entry) => {
+    if (typeof entry !== 'object' || entry === null) return;
+    const candidate = entry as Record<string, unknown>;
+    const symbol = parseSymbol(typeof candidate.symbol === 'string' ? candidate.symbol : null);
+    const shares = toFiniteNumber(candidate.shares);
+    const avgCost = toFiniteNumber(candidate.avgCost);
+
+    if (!symbol) return;
+    if (shares === null || shares <= 0 || shares > 10_000_000) return;
+    if (avgCost === null || avgCost < 0 || avgCost > 1_000_000) return;
+
+    cleaned.push({ symbol, shares, avgCost });
+  });
+
+  return cleaned;
+}
+
 // ─── API handler ──────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const limited = enforceRateLimit(req, { key: 'portfolio-analytics', max: 40, windowMs: 60_000 });
+  if (limited) return limited;
+
   let positions: InputPosition[];
   try {
-    const body = await req.json() as { positions: InputPosition[] };
-    positions = body.positions ?? [];
+    const body = (await req.json()) as { positions?: unknown };
+    positions = sanitizePositions(body.positions);
   } catch {
-    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+    return secureJson({ error: 'Invalid body' }, { status: 400 });
   }
 
   if (positions.length === 0) {
-    return NextResponse.json({ error: 'No positions' }, { status: 400 });
+    return secureJson({ error: 'No valid positions' }, { status: 400 });
   }
 
   const symbols = [...new Set(positions.map((p) => p.symbol))];
@@ -106,7 +142,7 @@ export async function POST(req: NextRequest) {
 
   const spyMap = priceSeries.get('SPY');
   if (!spyMap || spyMap.size < 20) {
-    return NextResponse.json({ error: 'Insufficient SPY data' }, { status: 500 });
+    return secureJson({ error: 'Insufficient SPY data' }, { status: 500 });
   }
 
   // Find dates where every position symbol AND SPY has a price
@@ -116,7 +152,7 @@ export async function POST(req: NextRequest) {
   );
 
   if (validDates.length < 20) {
-    return NextResponse.json({ error: 'Insufficient overlapping data' }, { status: 500 });
+    return secureJson({ error: 'Insufficient overlapping data' }, { status: 500 });
   }
 
   // Price arrays aligned to valid dates
@@ -212,21 +248,24 @@ export async function POST(req: NextRequest) {
       };
     });
 
-  return NextResponse.json({
-    metrics: {
-      totalReturn,
-      spyReturn,
-      annualReturn,
-      spyAnnual,
-      alpha,
-      beta,
-      sharpe,
-      volatility,
-      maxDrawdown: maxDD,
-      winRate,
-      lookbackDays: nDays,
+  return secureJson(
+    {
+      metrics: {
+        totalReturn,
+        spyReturn,
+        annualReturn,
+        spyAnnual,
+        alpha,
+        beta,
+        sharpe,
+        volatility,
+        maxDrawdown: maxDD,
+        winRate,
+        lookbackDays: nDays,
+      },
+      symbolStats,
+      timeline,
     },
-    symbolStats,
-    timeline,
-  });
+    { headers: { 'Cache-Control': 'private, no-store' } }
+  );
 }

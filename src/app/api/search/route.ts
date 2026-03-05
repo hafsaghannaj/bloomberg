@@ -1,12 +1,14 @@
 export const dynamic = 'force-static';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { searchSymbols } from '@/lib/yahoo';
+import { enforceRateLimit, parseSearchQuery, secureJson } from '@/lib/server/security';
 
 export async function GET(req: NextRequest) {
-  const query = req.nextUrl.searchParams.get('q');
-  if (!query) {
-    return NextResponse.json({ error: 'q param required' }, { status: 400 });
-  }
+  const limited = enforceRateLimit(req, { key: 'search', max: 120, windowMs: 60_000 });
+  if (limited) return limited;
+
+  const query = parseSearchQuery(req.nextUrl.searchParams.get('q'));
+  if (!query) return secureJson({ error: 'valid q param required' }, { status: 400 });
 
   try {
     const data = await searchSymbols(query);
@@ -18,9 +20,11 @@ export async function GET(req: NextRequest) {
       typeDisp: q.typeDisp,
     }));
 
-    return NextResponse.json(results);
+    return secureJson(results, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
+    });
   } catch (err) {
     console.error('Search API error:', err);
-    return NextResponse.json({ error: 'Failed to search' }, { status: 500 });
+    return secureJson({ error: 'Failed to search' }, { status: 500 });
   }
 }

@@ -3,10 +3,7 @@
 
 import type { PolygonWsStatus } from '@/types';
 
-// Fallback to literal so the key is always available in the client bundle
-// even if the NEXT_PUBLIC_ var isn't inlined at build time.
-const API_KEY =
-  process.env.NEXT_PUBLIC_POLYGON_API_KEY ?? 'RlpamAcGmpetQa4Tro0hI_Q1PQlgqNxU';
+const API_KEY = process.env.NEXT_PUBLIC_POLYGON_API_KEY ?? '';
 const WS_URL = 'wss://socket.polygon.io/stocks';
 
 type EventListener = (data: unknown) => void;
@@ -21,6 +18,11 @@ class PolygonWebSocketManager {
   private readonly maxDelay = 30000;
 
   connect() {
+    if (!API_KEY) {
+      this.status = 'disconnected';
+      this._emit('status', this.status);
+      return;
+    }
     if (this.status !== 'disconnected') return;
     this.status = 'connecting';
     this._emit('status', this.status);

@@ -1,14 +1,17 @@
 export const dynamic = 'force-static';
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getEconomicCalendar } from '@/lib/finnhub';
+import { enforceRateLimit, secureJson } from '@/lib/server/security';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = enforceRateLimit(req, { key: 'economic-calendar', max: 60, windowMs: 60_000 });
+  if (limited) return limited;
   try {
     const data = await getEconomicCalendar();
-    return NextResponse.json(data, {
+    return secureJson(data, {
       headers: { 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600' },
     });
   } catch {
-    return NextResponse.json([], { status: 200 });
+    return secureJson([], { status: 200 });
   }
 }

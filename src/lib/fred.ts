@@ -1,4 +1,5 @@
 import type { YieldPoint, MacroIndicator } from '@/types';
+import { fetchWithTimeout } from '@/lib/http';
 
 const API_KEY = process.env.FRED_API_KEY ?? '';
 const BASE = 'https://api.stlouisfed.org/fred';
@@ -27,13 +28,13 @@ async function fetchObservations(
 ): Promise<FredObservation[]> {
   const url =
     `${BASE}/series/observations` +
-    `?series_id=${seriesId}` +
-    `&api_key=${API_KEY}` +
+    `?series_id=${encodeURIComponent(seriesId)}` +
+    `&api_key=${encodeURIComponent(API_KEY)}` +
     `&file_type=json` +
-    `&sort_order=${sortOrder}` +
+    `&sort_order=${encodeURIComponent(sortOrder)}` +
     `&limit=${limit}`;
 
-  const res = await fetch(url, { next: { revalidate: 3600 } });
+  const res = await fetchWithTimeout(url, { next: { revalidate: 3600 } });
   if (!res.ok) return [];
   const json = (await res.json()) as FredResponse;
   return json.observations ?? [];

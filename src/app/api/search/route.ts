@@ -1,4 +1,4 @@
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { searchSymbols } from '@/lib/yahoo';
 import { enforceRateLimit, parseSearchQuery, secureJson } from '@/lib/server/security';

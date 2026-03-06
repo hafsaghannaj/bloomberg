@@ -250,6 +250,9 @@ export const useTerminalStore = create<TerminalState>()(
     {
       name: 'bloomberg-terminal',
       partialize: (state) => ({
+        activeSymbol: state.activeSymbol,
+        activeView: state.activeView,
+        activeTab: state.activeTab,
         watchlist: state.watchlist,
         positions: state.positions,
         commandHistory: state.commandHistory,

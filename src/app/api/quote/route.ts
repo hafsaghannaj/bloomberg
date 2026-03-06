@@ -1,4 +1,4 @@
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { getQuote, getQuotes } from '@/lib/yahoo';
 import { polygonSnapshot, polygonSnapshots, isEquityTicker } from '@/lib/polygon';

@@ -1,4 +1,4 @@
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { getMarketNews, getCompanyNews } from '@/lib/finnhub';
 import { polygonNews } from '@/lib/polygon';

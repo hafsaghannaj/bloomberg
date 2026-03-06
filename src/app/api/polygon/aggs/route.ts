@@ -1,4 +1,4 @@
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { polygonAggs, isEquityTicker } from '@/lib/polygon';
 import { getChart, rangeToInterval } from '@/lib/yahoo';
